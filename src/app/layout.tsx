@@ -4,9 +4,11 @@ import { Toaster } from "sonner";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { SessionProvider } from "@/components/providers/session-provider";
 import { siteConfig } from "@/config/site";
 import { fontMono, fontSans } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://financial-tracker.dev"),
@@ -28,11 +30,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = createServerSupabaseClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   return (
     <html lang="en">
       <body
@@ -42,9 +49,11 @@ export default function RootLayout({
           fontMono.variable,
         )}
       >
-        <QueryProvider>
-          <AppShell>{children}</AppShell>
-        </QueryProvider>
+        <SessionProvider session={session}>
+          <QueryProvider>
+            <AppShell user={session?.user}>{children}</AppShell>
+          </QueryProvider>
+        </SessionProvider>
         <Toaster theme="dark" richColors />
       </body>
     </html>

@@ -1,8 +1,19 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { AuthForm } from "@/components/forms/auth-form";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const supabase = createServerSupabaseClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-10">
       <div className="space-y-3 text-center">

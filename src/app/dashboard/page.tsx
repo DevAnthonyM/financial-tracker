@@ -1,9 +1,21 @@
+import { redirect } from "next/navigation";
+
 import { QuickExpenseForm } from "@/components/forms/quick-expense-form";
 import { BudgetBreakdown } from "@/components/dashboard/budget-breakdown";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const supabase = createServerSupabaseClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  if (!session) {
+    redirect("/sign-in");
+  }
+
   return (
     <div className="space-y-12">
       <div className="space-y-3">

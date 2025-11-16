@@ -1,14 +1,17 @@
 import Link from "next/link";
 import { ReactNode } from "react";
+import type { User } from "@supabase/supabase-js";
 
 import { siteConfig } from "@/config/site";
 import { Button } from "@/components/ui/button";
+import { signOutAction } from "@/app/(auth)/actions";
 
 type Props = {
   children: ReactNode;
+  user?: User | null;
 };
 
-export const AppShell = ({ children }: Props) => {
+export const AppShell = ({ children, user }: Props) => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <header className="border-b border-white/5 bg-slate-950/80 backdrop-blur">
@@ -36,9 +39,22 @@ export const AppShell = ({ children }: Props) => {
             ))}
           </nav>
           <div className="flex items-center gap-2 text-sm">
-            <Button variant="ghost" className="px-4" asChild>
-              <Link href="/sign-in">Sign in</Link>
-            </Button>
+            {user ? (
+              <>
+                <Button variant="ghost" className="px-4 hidden md:inline-flex" asChild>
+                  <Link href="/dashboard">Dashboard</Link>
+                </Button>
+                <form action={signOutAction}>
+                  <Button type="submit" variant="ghost" className="px-4 border border-white/10">
+                    Sign out
+                  </Button>
+                </form>
+              </>
+            ) : (
+              <Button variant="ghost" className="px-4" asChild>
+                <Link href="/sign-in">Sign in</Link>
+              </Button>
+            )}
             <Button
               variant="ghost"
               className="hidden border border-white/10 px-4 md:inline-flex"
