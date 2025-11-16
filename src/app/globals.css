@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+:root {
+  --background: 8 12 24;
+  --foreground: 245 247 255;
+  --muted: 148 163 184;
+  --card: 15 23 42;
+  --highlight: 16 185 129;
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+  --color-muted: rgb(var(--muted));
+  --color-card: rgb(var(--card));
+  --color-highlight: rgb(var(--highlight));
+}
+
+body {
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+  font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+}
+
+section {
+  margin-bottom: 4rem;
+}
+
+.section-title {
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.02), rgba(15, 23, 42, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 1.5rem;
+  padding: 1.75rem;
+  box-shadow: 0 20px 45px rgba(2, 6, 23, 0.6);
+}
