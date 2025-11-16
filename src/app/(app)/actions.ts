@@ -24,7 +24,7 @@ export async function createExpenseAction(input: ExpenseFormValues) {
     };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = createServerSupabaseClient("mutable");
   const {
     data: { user },
     error: userError,
@@ -68,7 +68,7 @@ export async function createIncomeAction(input: IncomeFormValues) {
     };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = createServerSupabaseClient("mutable");
   const {
     data: { user },
     error: userError,

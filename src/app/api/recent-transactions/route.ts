@@ -4,7 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { ensureAppUser } from "@/lib/server/user";
 
 export async function GET() {
-  const supabase = createServerSupabaseClient();
+  const supabase = createServerSupabaseClient("mutable");
   const {
     data: { session },
   } = await supabase.auth.getSession();
