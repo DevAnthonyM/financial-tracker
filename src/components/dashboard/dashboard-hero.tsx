@@ -1,13 +1,7 @@
-import { formatCurrency } from "@/lib/utils";
+import { format } from "date-fns";
 
-const heroData = {
-  budget: 21841,
-  spent: 12450,
-  daysRemaining: 18,
-  dailyBudget: 522,
-  emergencyFund: { current: 20000, target: 35000 },
-  nextPayment: { label: "Wifi - Nov 15", amount: 1523 },
-};
+import type { DashboardMetrics } from "@/types/dashboard";
+import { formatCurrency } from "@/lib/utils";
 
 const statusColor = (spentPercent: number) => {
   if (spentPercent < 0.7) return "text-emerald-300";
@@ -15,26 +9,35 @@ const statusColor = (spentPercent: number) => {
   return "text-rose-300";
 };
 
-export const DashboardHero = () => {
-  const spentPercent = heroData.spent / heroData.budget;
+type Props = {
+  metrics: DashboardMetrics;
+};
+
+export const DashboardHero = ({ metrics }: Props) => {
+  const spentPercent =
+    metrics.totalBudget > 0 ? metrics.spent / metrics.totalBudget : 0;
   return (
     <div className="grid gap-4 lg:grid-cols-4">
-      <HeroCard label="Current Budget" value={formatCurrency(heroData.budget)} />
+      <HeroCard label="Current Budget" value={formatCurrency(metrics.totalBudget)} />
       <HeroCard
         label="Spent So Far"
-        value={`${formatCurrency(heroData.spent)} - ${(spentPercent * 100).toFixed(0)}%`}
+        value={`${formatCurrency(metrics.spent)} - ${(spentPercent * 100).toFixed(0)}%`}
         valueClass={statusColor(spentPercent)}
       />
-      <HeroCard label="Days Remaining" value={`${heroData.daysRemaining} days`} />
-      <HeroCard label="Daily Budget" value={formatCurrency(heroData.dailyBudget)} />
+      <HeroCard label="Days Remaining" value={`${metrics.daysRemaining} days`} />
+      <HeroCard label="Daily Budget" value={formatCurrency(metrics.dailyBudget)} />
       <HeroCard
         label="Emergency Fund"
-        value={`${formatCurrency(heroData.emergencyFund.current)} / ${formatCurrency(heroData.emergencyFund.target)}`}
+        value={`${formatCurrency(metrics.emergencyCurrent)} / ${formatCurrency(metrics.emergencyTarget)}`}
         className="lg:col-span-2"
       />
       <HeroCard
         label="Next Payment"
-        value={`${heroData.nextPayment.label} - ${formatCurrency(heroData.nextPayment.amount)}`}
+        value={
+          metrics.nextPayment
+            ? `${metrics.nextPayment.name} - ${formatCurrency(metrics.nextPayment.amount)} (${format(new Date(metrics.nextPayment.dueDate), "MMM d")})`
+            : "All clear"
+        }
         className="lg:col-span-2"
       />
     </div>

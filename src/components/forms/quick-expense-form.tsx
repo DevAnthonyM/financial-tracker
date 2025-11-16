@@ -4,19 +4,20 @@
 // React Compiler (Next 16) cannot yet analyze react-hook-form's watch API,
 // so we disable the lint guard for this component only.
 
-import { useEffect, useTransition } from "react";
+import { useEffect, useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { createExpenseAction } from "@/app/(app)/actions";
-import { budgetCategories } from "@/config/categories";
 import {
   expenseSchema,
   type ExpenseFormValues,
 } from "@/lib/schemas/expense";
 import { cn, formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import type { CategoryStat, MpesaFeeRule } from "@/types/dashboard";
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -30,17 +31,28 @@ const defaultValues: ExpenseFormValues = {
   transactionDate: today,
 };
 
-const estimateMpesaFee = (amount: number) => {
-  if (amount === 0) return 0;
-  if (amount <= 100) return 0;
-  if (amount <= 500) return 7;
-  if (amount <= 2500) return 23;
-  if (amount <= 7000) return 54;
-  return Math.round(amount * 0.008);
+const estimateMpesaFee = (amount: number, rules: MpesaFeeRule[]) => {
+  if (!amount || amount <= 0) return 0;
+  const rule = rules.find(
+    (r) => amount >= Number(r.min_amount) && amount <= Number(r.max_amount),
+  );
+  if (rule) return Number(rule.fee);
+  return Math.round(amount * 0.006);
 };
 
-export const QuickExpenseForm = () => {
+type Props = {
+  categories: CategoryStat[];
+  mpesaRules: MpesaFeeRule[];
+  budgetRemaining: number;
+};
+
+export const QuickExpenseForm = ({
+  categories,
+  mpesaRules,
+  budgetRemaining,
+}: Props) => {
   const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
   const form = useForm<ExpenseFormValues>({
     resolver: zodResolver(expenseSchema),
     defaultValues,
@@ -51,13 +63,19 @@ export const QuickExpenseForm = () => {
   const selectedCategory = form.watch("categoryId");
 
   useEffect(() => {
+    if (!selectedCategory && categories.length > 0) {
+      form.setValue("categoryId", categories[0].id, { shouldDirty: true });
+    }
+  }, [categories, form, selectedCategory]);
+
+  useEffect(() => {
     if (paymentMethod === "m-pesa" && amount && amount > 0) {
-      form.setValue("mpesaFee", estimateMpesaFee(amount), {
+      form.setValue("mpesaFee", estimateMpesaFee(amount, mpesaRules), {
         shouldDirty: true,
         shouldTouch: true,
       });
     }
-  }, [amount, paymentMethod, form]);
+  }, [amount, paymentMethod, form, mpesaRules]);
 
   const handleSubmit = (values: ExpenseFormValues) => {
     startTransition(async () => {
@@ -67,9 +85,23 @@ export const QuickExpenseForm = () => {
         return;
       }
       toast.success("Expense logged");
+      queryClient.invalidateQueries({ queryKey: ["recent-transactions"] });
       form.reset({ ...defaultValues, transactionDate: new Date().toISOString().slice(0, 10) });
     });
   };
+
+  const projectedBudget = useMemo(() => {
+    if (!amount) return budgetRemaining;
+    return Math.max(0, budgetRemaining - amount);
+  }, [amount, budgetRemaining]);
+
+  if (!categories.length) {
+    return (
+      <p className="text-sm text-white/70">
+        No categories found. Seed categories for this user to enable expense tracking.
+      </p>
+    );
+  }
 
   return (
     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
@@ -91,7 +123,7 @@ export const QuickExpenseForm = () => {
           Category
         </label>
         <div className="flex flex-wrap gap-2">
-          {budgetCategories.map((category) => (
+          {categories.map((category) => (
             <button
               type="button"
               key={category.id}
@@ -182,7 +214,7 @@ export const QuickExpenseForm = () => {
             Budget Remaining
           </p>
           <p className="text-lg font-semibold text-white">
-            {amount ? formatCurrency(21841 - amount) : formatCurrency(21841)}
+            {formatCurrency(projectedBudget)}
           </p>
         </div>
         <Button type="submit" disabled={isPending}>

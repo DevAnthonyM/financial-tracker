@@ -1,0 +1,145 @@
+{
+  "mpesa_fees": {
+    "version": "2025.1",
+    "last_updated": "2025-11-16",
+    "currency": "KES",
+    "send_money": [
+      { "min": 1, "max": 100, "fee": 0 },
+      { "min": 101, "max": 500, "fee": 7 },
+      { "min": 501, "max": 1000, "fee": 13 },
+      { "min": 1001, "max": 1500, "fee": 23 },
+      { "min": 1501, "max": 2500, "fee": 33 },
+      { "min": 2501, "max": 3500, "fee": 52 },
+      { "min": 3501, "max": 5000, "fee": 58 },
+      { "min": 5001, "max": 7500, "fee": 78 },
+      { "min": 7501, "max": 10000, "fee": 90 },
+      { "min": 10001, "max": 15000, "fee": 100 },
+      { "min": 15001, "max": 20000, "fee": 105 },
+      { "min": 20001, "max": 35000, "fee": 108 },
+      { "min": 35001, "max": 50000, "fee": 110 },
+      { "min": 50001, "max": 70000, "fee": 113 },
+      { "min": 70001, "max": 150000, "fee": 115 },
+      { "min": 150001, "max": 250000, "fee": 117 },
+      { "min": 250001, "max": 500000, "fee": 120 }
+    ],
+    "withdraw_agent": [
+      { "min": 50, "max": 100, "fee": 11 },
+      { "min": 101, "max": 500, "fee": 29 },
+      { "min": 501, "max": 1000, "fee": 29 },
+      { "min": 1001, "max": 1500, "fee": 29 },
+      { "min": 1501, "max": 2500, "fee": 52 },
+      { "min": 2501, "max": 3500, "fee": 69 },
+      { "min": 3501, "max": 5000, "fee": 87 },
+      { "min": 5001, "max": 7500, "fee": 115 },
+      { "min": 7501, "max": 10000, "fee": 167 },
+      { "min": 10001, "max": 15000, "fee": 185 },
+      { "min": 15001, "max": 20000, "fee": 197 },
+      { "min": 20001, "max": 35000, "fee": 278 },
+      { "min": 35001, "max": 50000, "fee": 309 },
+      { "min": 50001, "max": 70000, "fee": 325 },
+      { "min": 70001, "max": 150000, "fee": 330 },
+      { "min": 150001, "max": 250000, "fee": 335 }
+    ],
+    "till_number": [
+      { "min": 1, "max": 500000, "fee": 0, "note": "Free for customer, merchant pays" }
+    ],
+    "paybill": [
+      { "min": 1, "max": 500000, "fee": 0, "note": "Free for customer, merchant pays" }
+    ],
+    "atm_withdrawal": [
+      { "min": 500, "max": 1000, "fee": 33 },
+      { "min": 1001, "max": 1500, "fee": 33 },
+      { "min": 1501, "max": 2500, "fee": 55 },
+      { "min": 2501, "max": 3500, "fee": 77 },
+      { "min": 3501, "max": 5000, "fee": 121 },
+      { "min": 5001, "max": 7500, "fee": 143 },
+      { "min": 7501, "max": 10000, "fee": 165 },
+      { "min": 10001, "max": 20000, "fee": 209 },
+      { "min": 20001, "max": 40000, "fee": 253 }
+    ],
+    "airtime_purchase": [
+      { "min": 10, "max": 10000, "fee": 0, "note": "Buying airtime is free" }
+    ],
+    "bank_transfer": [
+      { "min": 100, "max": 500, "fee": 55 },
+      { "min": 501, "max": 1000, "fee": 55 },
+      { "min": 1001, "max": 1500, "fee": 55 },
+      { "min": 1501, "max": 2500, "fee": 55 },
+      { "min": 2501, "max": 5000, "fee": 88 },
+      { "min": 5001, "max": 10000, "fee": 110 },
+      { "min": 10001, "max": 20000, "fee": 110 },
+      { "min": 20001, "max": 150000, "fee": 110 }
+    ]
+  },
+  "transaction_types": [
+    {
+      "id": "send_money",
+      "label": "Send Money (Person to Person)",
+      "icon": "send",
+      "color": "#3B82F6",
+      "has_fee": true
+    },
+    {
+      "id": "withdraw_agent",
+      "label": "Withdraw from Agent",
+      "icon": "banknote",
+      "color": "#10B981",
+      "has_fee": true
+    },
+    {
+      "id": "till_number",
+      "label": "Buy Goods (Till Number)",
+      "icon": "shopping-cart",
+      "color": "#8B5CF6",
+      "has_fee": false
+    },
+    {
+      "id": "paybill",
+      "label": "Pay Bill (PayBill)",
+      "icon": "credit-card",
+      "color": "#F59E0B",
+      "has_fee": false
+    },
+    {
+      "id": "atm_withdrawal",
+      "label": "ATM Withdrawal",
+      "icon": "landmark",
+      "color": "#EF4444",
+      "has_fee": true
+    },
+    {
+      "id": "airtime_purchase",
+      "label": "Buy Airtime",
+      "icon": "phone",
+      "color": "#06B6D4",
+      "has_fee": false
+    },
+    {
+      "id": "bank_transfer",
+      "label": "M-Pesa to Bank",
+      "icon": "building-2",
+      "color": "#EC4899",
+      "has_fee": true
+    }
+  ],
+  "fee_optimization_tips": {
+    "send_money": [
+      "Send amounts under KES 100 to avoid fees (FREE)",
+      "Consolidate small payments to reduce number of transactions",
+      "For amounts above KES 2,500, consider bank transfer instead"
+    ],
+    "withdraw_agent": [
+      "Withdraw larger amounts less frequently to minimize fees",
+      "For amounts above KES 10,000, ATM may be cheaper",
+      "Plan withdrawals to avoid multiple small transactions"
+    ],
+    "till_paybill": [
+      "Always use Till Number or PayBill when possible - it's FREE!",
+      "Ask vendors if they accept M-Pesa business payments"
+    ],
+    "bank_transfer": [
+      "Transfer larger amounts directly to bank (flat KES 110 above 10K)",
+      "Cheaper than withdrawing and depositing for amounts over KES 5,000"
+    ]
+  }
+}

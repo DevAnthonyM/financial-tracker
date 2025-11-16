@@ -1,30 +1,20 @@
-import { budgetCategories } from "@/config/categories";
+import type { CategoryStat } from "@/types/dashboard";
 import { formatCurrency } from "@/lib/utils";
 
-type BudgetCategory = (typeof budgetCategories)[number];
-
-const sampleSpend: Record<string, number> = {
-  rent: 3560,
-  "ai-tool-1": 2800,
-  wifi: 800,
-  "family-support": 2500,
-  food: 1200,
-  transport: 500,
-  shopping: 800,
-  "street-food": 180,
-  "emergency-medical": 0,
-};
-
-const tierOrder: Record<BudgetCategory["tier"], number> = {
+const tierOrder: Record<string, number> = {
   Fixed: 1,
   Essential: 2,
   Controlled: 3,
   Emergency: 4,
 };
 
-export const BudgetBreakdown = () => {
-  const categories = [...budgetCategories].sort(
-    (a, b) => tierOrder[a.tier] - tierOrder[b.tier],
+type Props = {
+  categories: CategoryStat[];
+};
+
+export const BudgetBreakdown = ({ categories }: Props) => {
+  const sorted = [...categories].sort(
+    (a, b) => (tierOrder[a.tier] ?? 99) - (tierOrder[b.tier] ?? 99),
   );
   return (
     <div className="card space-y-4">
@@ -33,9 +23,8 @@ export const BudgetBreakdown = () => {
         <p className="text-xs uppercase tracking-[0.3em] text-white/60">Tiered Limits</p>
       </div>
       <div className="space-y-4">
-        {categories.map((category) => {
-          const spent = sampleSpend[category.id] ?? 0;
-          const percentage = Math.min(1, spent / category.limit);
+        {sorted.map((category) => {
+          const percentage = Math.min(1, category.spent / category.monthly_limit);
           return (
             <div key={category.id} className="space-y-1">
               <div className="flex items-center justify-between text-sm text-white/80">
@@ -44,7 +33,7 @@ export const BudgetBreakdown = () => {
                   <p className="text-xs text-white/60">{category.tier}</p>
                 </div>
                 <p>
-                  {formatCurrency(spent)} / {formatCurrency(category.limit)}
+                  {formatCurrency(category.spent)} / {formatCurrency(category.monthly_limit)}
                 </p>
               </div>
               <div className="h-2 rounded-full bg-white/10">
