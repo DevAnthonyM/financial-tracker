@@ -18,6 +18,7 @@ const incomeAllocations = [
 export async function createExpenseAction(input: ExpenseFormValues) {
   const parsed = expenseSchema.safeParse(input);
   if (!parsed.success) {
+    console.log("[auth] createExpenseAction validation failed", parsed.error.flatten().fieldErrors);
     return {
       error: "Invalid expense payload",
       details: parsed.error.flatten().fieldErrors,
@@ -31,6 +32,7 @@ export async function createExpenseAction(input: ExpenseFormValues) {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
+    console.log("[auth] createExpenseAction user lookup failed", userError);
     return { error: "Please sign in to log expenses." };
   }
 
@@ -51,7 +53,7 @@ export async function createExpenseAction(input: ExpenseFormValues) {
   });
 
   if (error) {
-    console.error("Supabase error", error);
+    console.error("[auth] createExpenseAction Supabase insert error", error);
     return { error: error.message };
   }
 
@@ -62,6 +64,7 @@ export async function createExpenseAction(input: ExpenseFormValues) {
 export async function createIncomeAction(input: IncomeFormValues) {
   const parsed = incomeSchema.safeParse(input);
   if (!parsed.success) {
+    console.log("[auth] createIncomeAction validation failed", parsed.error.flatten().fieldErrors);
     return {
       error: "Invalid income payload",
       details: parsed.error.flatten().fieldErrors,
@@ -75,6 +78,7 @@ export async function createIncomeAction(input: IncomeFormValues) {
   } = await supabase.auth.getUser();
 
   if (userError || !user) {
+    console.log("[auth] createIncomeAction user lookup failed", userError);
     return { error: "Please sign in to log income." };
   }
 
@@ -93,7 +97,7 @@ export async function createIncomeAction(input: IncomeFormValues) {
   });
 
   if (error) {
-    console.error("Supabase income insert error", error);
+    console.error("[auth] Supabase income insert error", error);
     return { error: error.message };
   }
 

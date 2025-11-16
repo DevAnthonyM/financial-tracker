@@ -1,16 +1,24 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 import { AuthForm } from "@/components/forms/auth-form";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export default async function SignInPage() {
+  const cookieStore = await cookies();
+  const cookieNames = cookieStore.getAll().map((cookie) => cookie.name);
+  console.log("[sign-in] cookie names:", cookieNames);
+
   const supabase = createServerSupabaseClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
+  console.log("[sign-in] session lookup result:", session?.user?.id ?? "none");
+
   if (session) {
+    console.log("[sign-in] already authenticated, redirecting to /dashboard");
     redirect("/dashboard");
   }
 

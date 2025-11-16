@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 import { QuickExpenseForm } from "@/components/forms/quick-expense-form";
 import { IncomeForm } from "@/components/forms/income-form";
@@ -10,17 +11,30 @@ import { ensureAppUser } from "@/lib/server/user";
 import { fetchDashboardData } from "@/lib/server/dashboard";
 
 export default async function DashboardPage() {
+  const cookieStore = await cookies();
+  const cookieNames = cookieStore.getAll().map((cookie) => cookie.name);
+  console.log("[dashboard] incoming cookie names:", cookieNames);
+
   const supabase = createServerSupabaseClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
+  console.log("[dashboard] session lookup result:", session?.user?.id ?? "none");
+
   if (!session) {
+    console.log("[dashboard] no session found, redirecting to /sign-in");
     redirect("/sign-in");
   }
 
   const appUser = await ensureAppUser(supabase, session.user);
+  console.log("[dashboard] ensured app user:", appUser.id);
   const dashboardData = await fetchDashboardData(supabase, appUser.id);
+  console.log("[dashboard] metrics snapshot:", {
+    totalBudget: dashboardData.metrics.totalBudget,
+    spent: dashboardData.metrics.spent,
+    categories: dashboardData.categories.length,
+  });
 
   return (
     <div className="space-y-12">
