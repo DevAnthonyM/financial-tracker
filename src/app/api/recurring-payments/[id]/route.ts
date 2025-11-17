@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { addMonths, addWeeks, addYears, format } from "date-fns";
+import { addDays, addMonths, addWeeks, addYears, format } from "date-fns";
 import { revalidatePath } from "next/cache";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -56,6 +56,15 @@ export async function PATCH(
     const frequency = payload.frequency ?? payment?.frequency ?? "monthly";
     const currentDue = payload.next_due_date ?? payment?.next_due_date ?? undefined;
     updates.next_due_date = advanceDate(currentDue ?? "", frequency);
+  }
+
+  if (payload.snooze_days) {
+    const days = Number(payload.snooze_days);
+    if (!Number.isNaN(days) && days > 0) {
+      const current = updates.next_due_date ?? payload.next_due_date;
+      const baseDate = current ? new Date(current) : new Date();
+      updates.next_due_date = format(addDays(baseDate, days), "yyyy-MM-dd");
+    }
   }
 
   const { data, error } = await supabase

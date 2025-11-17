@@ -2,17 +2,27 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import type { AlertItem } from "@/types/dashboard";
 import { Button } from "@/components/ui/button";
 
+const severities = ["info", "warning", "critical"] as const;
+
 type Props = {
   initialAlerts: AlertItem[];
 };
 
+type Severity = "info" | "warning" | "critical";
+
 export const AlertsPanel = ({ initialAlerts }: Props) => {
   const queryClient = useQueryClient();
+  const [form, setForm] = useState<{ message: string; severity: Severity }>({
+    message: "",
+    severity: "info",
+  });
+
   const { data: alerts = [] } = useQuery<AlertItem[]>({
     queryKey: ["alerts"],
     queryFn: async () => {
@@ -24,7 +34,7 @@ export const AlertsPanel = ({ initialAlerts }: Props) => {
     refetchInterval: 60000,
   });
 
-  const mutation = useMutation({
+  const toggleMutation = useMutation({
     mutationFn: async (payload: { id: string; is_read: boolean }) => {
       const res = await fetch(`/api/alerts/${payload.id}`, {
         method: "PATCH",
@@ -40,6 +50,31 @@ export const AlertsPanel = ({ initialAlerts }: Props) => {
     onError: () => toast.error("Failed to update alert"),
   });
 
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/alerts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: form.message,
+          severity: form.severity,
+          type: "manual",
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error ?? "Unable to create alert");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["alerts"] });
+      toast.success("Alert created");
+      setForm({ message: "", severity: "info" });
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : "Failed"),
+  });
+
   return (
     <div className="card space-y-4">
       <div className="flex items-center justify-between">
@@ -50,6 +85,38 @@ export const AlertsPanel = ({ initialAlerts }: Props) => {
           </p>
         </div>
       </div>
+
+      <div className="rounded-2xl border border-white/10 bg-black/20 p-3 space-y-2">
+        <p className="text-xs uppercase tracking-[0.3em] text-white/60">Manual Alert</p>
+        <textarea
+          rows={2}
+          value={form.message}
+          placeholder="What do you want to remember?"
+          onChange={(event) => setForm((prev) => ({ ...prev, message: event.currentTarget.value }))}
+          className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white focus:outline focus:outline-emerald-400"
+        />
+        <div className="flex items-center gap-2 text-xs text-white/60">
+          {severities.map((sev) => (
+            <button
+              key={sev}
+              type="button"
+              className={`rounded-full border px-3 py-1 ${form.severity === sev ? "border-emerald-400 text-emerald-200" : "border-white/10 text-white/60"}`}
+              onClick={() => setForm((prev) => ({ ...prev, severity: sev }))}
+            >
+              {sev}
+            </button>
+          ))}
+        </div>
+        <Button
+          size="sm"
+          className="self-start"
+          onClick={() => createMutation.mutate()}
+          disabled={!form.message || createMutation.isPending}
+        >
+          Create Alert
+        </Button>
+      </div>
+
       <div className="space-y-3">
         {alerts.map((alert) => (
           <div
@@ -67,7 +134,7 @@ export const AlertsPanel = ({ initialAlerts }: Props) => {
               variant={alert.is_read ? "ghost" : "secondary"}
               size="sm"
               onClick={() =>
-                mutation.mutate({ id: alert.id, is_read: !alert.is_read })
+                toggleMutation.mutate({ id: alert.id, is_read: !alert.is_read })
               }
             >
               {alert.is_read ? "Unread" : "Mark read"}

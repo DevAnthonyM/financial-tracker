@@ -64,3 +64,9 @@ export type RecurringPayment = {
   is_active: boolean;
   reminder_days_before: number | null;
 };
+
+export type AlertFormState = {
+  message: string;
+  severity: "info" | "warning" | "critical";
+  type: string;
+};
