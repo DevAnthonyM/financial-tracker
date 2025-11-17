@@ -7,6 +7,8 @@ import { BudgetBreakdown } from "@/components/dashboard/budget-breakdown";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
 import { CategoryManager } from "@/components/categories/category-manager";
+import { AlertsPanel } from "@/components/alerts/alerts-panel";
+import { PaymentCalendar } from "@/components/payments/payment-calendar";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { ensureAppUser } from "@/lib/server/user";
 import { fetchDashboardData } from "@/lib/server/dashboard";
@@ -69,6 +71,10 @@ export default async function DashboardPage() {
       </div>
 
       <BudgetBreakdown categories={dashboardData.categories} />
+      <div className="grid gap-8 lg:grid-cols-2">
+        <AlertsPanel initialAlerts={dashboardData.alerts} />
+        <PaymentCalendar initialPayments={dashboardData.recurringPayments} />
+      </div>
       <CategoryManager initialCategories={dashboardData.categories} />
     </div>
   );

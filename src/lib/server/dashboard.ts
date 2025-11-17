@@ -11,6 +11,8 @@ import type {
   DashboardMetrics,
   MpesaFeeRule,
   TransactionItem,
+  AlertItem,
+  RecurringPayment,
 } from "@/types/dashboard";
 
 export const ensureCurrentBudgetPeriod = async (
@@ -153,6 +155,24 @@ export const fetchDashboardData = async (
     .order("min_amount", { ascending: true });
   const mpesaRules = mpesaRulesResponse ?? [];
 
+  const { data: alertsResponse } = await supabase
+    .from("alerts")
+    .select("id,type,severity,message,is_read,created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(10);
+  const alerts = alertsResponse ?? [];
+
+  const { data: recurringResponse } = await supabase
+    .from("recurring_payments")
+    .select(
+      "id,name,amount,category_id,frequency,next_due_date,is_active,reminder_days_before",
+    )
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .order("next_due_date", { ascending: true });
+  const recurringPayments = recurringResponse ?? [];
+
   return {
     metrics: {
       totalBudget: Number(period.total_budget ?? 0),
@@ -176,6 +196,8 @@ export const fetchDashboardData = async (
     recentTransactions: typedTransactions.slice(0, 5),
     categories: categoryStats,
     mpesaRules: mpesaRules as MpesaFeeRule[],
+    alerts: alerts as AlertItem[],
+    recurringPayments: recurringPayments as RecurringPayment[],
     budgetPeriodId: period.id as string,
     budgetRemaining: Math.max(
       0,

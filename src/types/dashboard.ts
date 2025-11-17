@@ -44,3 +44,23 @@ export type MpesaFeeRule = {
   fee: number;
   note: string | null;
 };
+
+export type AlertItem = {
+  id: string;
+  type: string;
+  severity: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+};
+
+export type RecurringPayment = {
+  id: string;
+  name: string;
+  amount: number;
+  category_id: string | null;
+  frequency: string;
+  next_due_date: string;
+  is_active: boolean;
+  reminder_days_before: number | null;
+};
