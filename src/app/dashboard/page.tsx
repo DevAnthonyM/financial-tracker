@@ -6,6 +6,7 @@ import { IncomeForm } from "@/components/forms/income-form";
 import { BudgetBreakdown } from "@/components/dashboard/budget-breakdown";
 import { DashboardHero } from "@/components/dashboard/dashboard-hero";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
+import { CategoryManager } from "@/components/categories/category-manager";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { ensureAppUser } from "@/lib/server/user";
 import { fetchDashboardData } from "@/lib/server/dashboard";
@@ -68,6 +69,7 @@ export default async function DashboardPage() {
       </div>
 
       <BudgetBreakdown categories={dashboardData.categories} />
+      <CategoryManager initialCategories={dashboardData.categories} />
     </div>
   );
 }
