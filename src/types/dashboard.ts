@@ -70,3 +70,22 @@ export type AlertFormState = {
   severity: "info" | "warning" | "critical";
   type: string;
 };
+
+export type FamilyMoneyAccount = {
+  id: string;
+  family_member_name: string;
+  current_balance: number;
+  total_deposited: number;
+  total_released: number;
+  last_activity: string | null;
+};
+
+export type FamilyMoneyTransaction = {
+  id: string;
+  family_money_id: string;
+  type: "deposit" | "release";
+  amount: number;
+  note: string | null;
+  transaction_date: string;
+  created_at: string;
+};

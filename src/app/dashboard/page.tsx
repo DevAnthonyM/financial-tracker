@@ -9,6 +9,7 @@ import { RecentTransactions } from "@/components/dashboard/recent-transactions";
 import { CategoryManager } from "@/components/categories/category-manager";
 import { AlertsPanel } from "@/components/alerts/alerts-panel";
 import { PaymentCalendar } from "@/components/payments/payment-calendar";
+import { FamilyMoneyCard } from "@/components/family/family-money-card";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { ensureAppUser } from "@/lib/server/user";
 import { fetchDashboardData } from "@/lib/server/dashboard";
@@ -75,6 +76,10 @@ export default async function DashboardPage() {
         <AlertsPanel initialAlerts={dashboardData.alerts} />
         <PaymentCalendar initialPayments={dashboardData.recurringPayments} />
       </div>
+      <FamilyMoneyCard
+        accounts={dashboardData.familyAccounts}
+        transactions={dashboardData.familyTransactions}
+      />
       <CategoryManager initialCategories={dashboardData.categories} />
     </div>
   );

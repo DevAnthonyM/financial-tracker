@@ -13,6 +13,8 @@ import type {
   TransactionItem,
   AlertItem,
   RecurringPayment,
+  FamilyMoneyAccount,
+  FamilyMoneyTransaction,
 } from "@/types/dashboard";
 
 export const ensureCurrentBudgetPeriod = async (
@@ -173,6 +175,18 @@ export const fetchDashboardData = async (
     .order("next_due_date", { ascending: true });
   const recurringPayments = recurringResponse ?? [];
 
+  const { data: familyAccounts } = await supabase
+    .from("family_money")
+    .select("id,family_member_name,current_balance,total_deposited,total_released,last_activity")
+    .eq("user_id", userId)
+    .order("family_member_name");
+
+  const { data: familyTransactions } = await supabase
+    .from("family_money_transactions")
+    .select("id,family_money_id,type,amount,note,transaction_date,created_at")
+    .order("transaction_date", { ascending: false })
+    .limit(20);
+
   return {
     metrics: {
       totalBudget: Number(period.total_budget ?? 0),
@@ -198,6 +212,8 @@ export const fetchDashboardData = async (
     mpesaRules: mpesaRules as MpesaFeeRule[],
     alerts: alerts as AlertItem[],
     recurringPayments: recurringPayments as RecurringPayment[],
+    familyAccounts: (familyAccounts ?? []) as FamilyMoneyAccount[],
+    familyTransactions: (familyTransactions ?? []) as FamilyMoneyTransaction[],
     budgetPeriodId: period.id as string,
     budgetRemaining: Math.max(
       0,
@@ -205,3 +221,4 @@ export const fetchDashboardData = async (
     ),
   };
 };
+
