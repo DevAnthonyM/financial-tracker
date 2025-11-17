@@ -8,7 +8,7 @@ import { useEffect, useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { createExpenseAction } from "@/app/(app)/actions";
 import {
@@ -58,15 +58,25 @@ export const QuickExpenseForm = ({
     defaultValues,
   });
 
+  const { data: liveCategories = categories } = useQuery<CategoryStat[]>({
+    queryKey: ["categories-management"],
+    queryFn: async () => {
+      const res = await fetch("/api/categories");
+      if (!res.ok) throw new Error("Failed to load categories");
+      return (await res.json()) as CategoryStat[];
+    },
+    initialData: categories,
+  });
+
   const amount = form.watch("amount");
   const paymentMethod = form.watch("paymentMethod");
   const selectedCategory = form.watch("categoryId");
 
   useEffect(() => {
-    if (!selectedCategory && categories.length > 0) {
-      form.setValue("categoryId", categories[0].id, { shouldDirty: true });
+    if (!selectedCategory && liveCategories.length > 0) {
+      form.setValue("categoryId", liveCategories[0].id, { shouldDirty: true });
     }
-  }, [categories, form, selectedCategory]);
+  }, [liveCategories, form, selectedCategory]);
 
   useEffect(() => {
     if (paymentMethod === "m-pesa" && amount && amount > 0) {
@@ -95,7 +105,7 @@ export const QuickExpenseForm = ({
     return Math.max(0, budgetRemaining - amount);
   }, [amount, budgetRemaining]);
 
-  if (!categories.length) {
+  if (!liveCategories.length) {
     return (
       <p className="text-sm text-white/70">
         No categories found. Seed categories for this user to enable expense tracking.
@@ -123,7 +133,7 @@ export const QuickExpenseForm = ({
           Category
         </label>
         <div className="flex flex-wrap gap-2">
-          {categories.map((category) => (
+          {liveCategories.map((category) => (
             <button
               type="button"
               key={category.id}
