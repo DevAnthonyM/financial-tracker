@@ -18,7 +18,7 @@ export async function signInAction(values: AuthValues) {
     return { error: "Invalid credentials" };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = createServerSupabaseClient("mutable");
   const { error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error) {
@@ -34,7 +34,7 @@ export async function signUpAction(values: AuthValues) {
     return { error: "Invalid credentials" };
   }
 
-  const supabase = createServerSupabaseClient();
+  const supabase = createServerSupabaseClient("mutable");
   const { error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
@@ -48,7 +48,7 @@ export async function signUpAction(values: AuthValues) {
 }
 
 export async function signOutAction() {
-  const supabase = createServerSupabaseClient();
+  const supabase = createServerSupabaseClient("mutable");
   await supabase.auth.signOut();
   redirect("/");
 }
